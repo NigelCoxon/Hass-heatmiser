@@ -10,6 +10,9 @@
 import logging
 from typing import List
 
+import threading
+sema = threading.Semaphore(1)
+
 from . import heatmiser
 import voluptuous as vol
 
@@ -243,7 +246,9 @@ class HMV3Stat(ClimateEntity):
         _LOGGER.debug(f'Update started for {self._name}')
 
         try:
+            sema.acquire()
             self.therm.read_dcb()
+            sema.release()
         except ValueError as err:
             _LOGGER.error(f'Error - Update exception {err} for {self._name}')
         _LOGGER.debug(f'Update done')
